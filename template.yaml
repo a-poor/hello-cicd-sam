@@ -10,14 +10,11 @@ Globals:
     Timeout: 3
     Runtime: python3.8
     Handler: app.lambda_handler
+    Environment:
+      Variables:
+        TABLE_NAME: MyTestTable
 
 Resources:
-
-  MyAPI:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: dev
-
   MyTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
@@ -40,26 +37,32 @@ Resources:
   GetItemsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/get-items/
+      CodeUri: functions/items/
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName: MyTestTable
       Events:
         HelloWorld:
           Type: Api
           Properties:
-            Path: /get-items
+            Path: /items
             Method: get
 
   AddItemFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/add/
+      CodeUri: functions/add-item/
+      Policies:
+      - DynamoDBWritePolicy:
+          TableName: MyTestTable
       Events:
         HelloWorld:
           Type: Api
           Properties:
-            Path: /add
+            Path: /add-item
             Method: get
 
 Outputs:
   HelloWorldApi:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${MyAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
