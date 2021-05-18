@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  hello-cicd-sam
+
+  Sample SAM Template for hello-cicd-sam
+
+Globals:
+  Function:
+    Timeout: 3
+    Runtime: python3.8
+    Handler: app.lambda_handler
+
+Resources:
+
+  MyAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+
+  MyTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: MyTestTable
+      PrimaryKey:
+        Name: ItemId
+        Type: String
+
+  IndexFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/index/
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+
+  GetItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/get-items/
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /get-items
+            Method: get
+
+  AddItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/add/
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /add
+            Method: get
+
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${MyAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/"
